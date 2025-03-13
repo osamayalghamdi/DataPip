@@ -1,0 +1,9 @@
+numpy
+pandas
+pyjanitor
+cleanlab
+scikit-learn
+matplotlib
+plotly
+altair
+PyYAML
