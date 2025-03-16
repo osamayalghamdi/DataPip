@@ -96,21 +96,3 @@ To leave the virtual environment:
 deactivate
 ```
 
-### Troubleshooting
-
-- **Python Version**: You need Python 3.12. Get it from [python.org](https://www.python.org/downloads/) if you don’t have it.
-- **Errors with `pip`**: Update `pip` with:
-  ```bash
-  pip install --upgrade pip
-  ```
-- **Next Time**: Just reactivate with `source .venv/bin/activate` (or the Windows version) when you return.
-
-That’s it! You’re ready to use OpenManus for Smart Workflows.
-
-```
-
-
----
-
-
-This fits into your `README.md` as a complete installation section. It starts with `python3 -m venv .venv` and continues naturally from there, covering all the steps you need. Let me know if you want to tweak it further!
