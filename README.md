@@ -16,12 +16,6 @@ Choose one of these installation methods based on your preferences:
 Below is a section of a `README.md` file formatted in Markdown, explaining how to set up the OpenManus project using `pip` and a virtual environment, starting with the command `python3 -m venv .venv` as you requested. I’ve written it in a clear, beginner-friendly way, assuming it’s part of your adapted "OpenManus for Smart Workflows" project.
 
 ---
-
-````markdown
-## Installation with `pip` and Virtual Environment
-
-Here’s how to set up **OpenManus for Smart Workflows** using `pip` in a virtual environment. This keeps everything tidy and separate from your system’s Python.
-
 ### Step 1: Clone the Project
 
 1. Open your terminal (Command Prompt on Windows, Terminal on macOS/Linux).
