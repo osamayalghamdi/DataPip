@@ -1,53 +1,20 @@
-# Coordinator Agent System
+# 👋 DataPip: Smart Data Workflows
 
-## Overview
-The Coordinator Agent System is designed to facilitate the orchestration of workflows among various agents responsible for data collection, analysis, and visualization. This modular architecture allows for easy extension and integration of new functionalities.
+Welcome to **DataPip**! This project leverages the powerful **Manus** AI assistant to create an intelligent data pipeline system that collects data, analyzes it, and generates visualizations—all orchestrated by AI. Built to be smart, flexible, and simple to use.
 
-## Project Structure
-```
-engcoordinator_agent_system
-├── src
-│   ├── core
-│   │   ├── agent.py              # Base class for all agents.
-│   │   ├── coordinator.py        # Base coordinator with workflow orchestration.
-│   │   └── message.py            # Basic message structure for agent communication.
-│   │
-│   ├── agents
-│   │   ├── master_coordinator.py # Top-level coordinator delegating tasks.
-│   │   ├── data_agent.py         # Handles data collection and cleaning.
-│   │   ├── analysis_agent.py     # Manages data analysis and modeling.
-│   │   └── visualization_agent.py # Generates charts and reports.
-│   │
-│   ├── tools
-│   │   ├── data_tools.py         # Integrates pyjanitor, cleanlab, and LLM cleaning.
-│   │   ├── analysis_tools.py     # Provides analysis utilities.
-│   │   └── viz_tools.py          # Wraps visualization libraries (Plotly, Altair).
-│   │
-│   └── system
-│       ├── workflow_manager.py   # Controls the overall task execution and flow.
-│       └── config_manager.py     # Loads configuration settings.
-├── config
-│   └── agent_config.yaml         # Defines agent roles, relationships, and tool settings.
-└── requirements.txt              # Lists project dependencies.
-```
+## Features
 
-## Setup Instructions
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd engcoordinator_agent_system
-   ```
+- **AI-Driven Data Collection**: Automatically gather data from files, APIs, and databases
+- **Intelligent Analysis**: Leverage ML techniques for insights and pattern recognition
+- **Dynamic Visualization**: Create charts and graphs optimized for your data
+- **OpenManus Integration**: Uses Manus AI's planning capabilities to orchestrate complex workflows
 
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+## Installation
 
-## Usage
-To run the system, you can initiate the `MasterCoordinator` which will manage the workflow among the various agents. Each agent can be customized through the configuration file located at `config/agent_config.yaml`.
+Choose one of these installation methods based on your preferences:
 
-## Contributing
-Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
+### Method 1: Using Conda
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+1. Create and activate a new Conda environment:
+   ```bash
+    python3 -m venv .venv
