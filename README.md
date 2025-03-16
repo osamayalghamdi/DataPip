@@ -11,11 +11,10 @@ Welcome to **DataPip**! This project leverages the powerful **Manus** AI assista
 
 ## Installation
 
-Choose one of these installation methods based on your preferences:
+### Setting Up DataPip
 
-Below is a section of a `README.md` file formatted in Markdown, explaining how to set up the OpenManus project using `pip` and a virtual environment, starting with the command `python3 -m venv .venv` as you requested. I’ve written it in a clear, beginner-friendly way, assuming it’s part of your adapted "OpenManus for Smart Workflows" project.
+Follow these steps to get DataPip up and running on your system:
 
----
 ### Step 1: Clone the Project
 
 1. Open your terminal (Command Prompt on Windows, Terminal on macOS/Linux).
@@ -23,7 +22,6 @@ Below is a section of a `README.md` file formatted in Markdown, explaining how t
    ```bash
    cd ~/projects  # Pick any folder you like
    ```
-````
 
 3. Clone the repository:
    ```bash
@@ -111,7 +109,8 @@ That’s it! You’re ready to use OpenManus for Smart Workflows.
 
 ```
 
+
 ---
 
+
 This fits into your `README.md` as a complete installation section. It starts with `python3 -m venv .venv` and continues naturally from there, covering all the steps you need. Let me know if you want to tweak it further!
-```
