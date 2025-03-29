@@ -3,8 +3,12 @@ from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field
 
+from app.schema import Tool, ToolCall, ToolResult
 
-class BaseTool(ABC, BaseModel):
+
+class BaseTool(Tool, ABC):
+    """Base class for all tools providing common functionality."""
+
     name: str
     description: str
     parameters: Optional[dict] = None
@@ -12,13 +16,14 @@ class BaseTool(ABC, BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    async def __call__(self, **kwargs) -> Any:
-        """Execute the tool with given parameters."""
-        return await self.execute(**kwargs)
-
     @abstractmethod
-    async def execute(self, **kwargs) -> Any:
-        """Execute the tool with given parameters."""
+    async def _call(self, tool_call: ToolCall) -> ToolResult:
+        """Execute the tool's main logic."""
+        pass
+
+    async def __call__(self, tool_call: ToolCall) -> ToolResult:
+        """Execute the tool."""
+        return await self._call(tool_call)
 
     def to_param(self) -> Dict:
         """Convert tool to function call format."""

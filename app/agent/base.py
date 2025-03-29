@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from contextlib import asynccontextmanager
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from pydantic import BaseModel, Field, model_validator
+from loguru import logger
 
 from app.llm import LLM
-from app.logger import logger
-from app.schema import ROLE_TYPE, AgentState, Memory, Message
+from app.schema import ROLE_TYPE, AgentState, Memory, Message, Agent, AgentCall, AgentResult, Tool, ToolCall, ToolResult
 
 
 class BaseAgent(BaseModel, ABC):
@@ -110,52 +110,60 @@ class BaseAgent(BaseModel, ABC):
         msg = msg_factory(content, **kwargs) if role == "tool" else msg_factory(content)
         self.memory.add_message(msg)
 
-    async def run(self, request: Optional[str] = None) -> str:
-        """Execute the agent's main loop asynchronously.
-
-        Args:
-            request: Optional initial user request to process.
-
-        Returns:
-            A string summarizing the execution results.
-
-        Raises:
-            RuntimeError: If the agent is not in IDLE state at start.
-        """
-        if self.state != AgentState.IDLE:
-            raise RuntimeError(f"Cannot run agent from state: {self.state}")
-
-        if request:
-            self.update_memory("user", request)
-
-        results: List[str] = []
-        async with self.state_context(AgentState.RUNNING):
-            while (
-                self.current_step < self.max_steps and self.state != AgentState.FINISHED
-            ):
-                self.current_step += 1
-                logger.info(f"Executing step {self.current_step}/{self.max_steps}")
-                step_result = await self.step()
-
-                # Check for stuck state
-                if self.is_stuck():
-                    self.handle_stuck_state()
-
-                results.append(f"Step {self.current_step}: {step_result}")
-
-            if self.current_step >= self.max_steps:
-                self.current_step = 0
-                self.state = AgentState.IDLE
-                results.append(f"Terminated: Reached max steps ({self.max_steps})")
-
-        return "\n".join(results) if results else "No steps executed"
+    async def run(self, arguments: Dict[str, Any]) -> AgentResult:
+        """Run the agent with the given arguments."""
+        try:
+            agent_call = AgentCall(arguments=arguments)
+            return await self._call(agent_call)
+        except Exception as e:
+            logger.error(f"Error running agent: {str(e)}")
+            return AgentResult(success=False, error=str(e))
 
     @abstractmethod
-    async def step(self) -> str:
-        """Execute a single step in the agent's workflow.
+    async def _call(self, agent_call: AgentCall) -> AgentResult:
+        """Execute the agent's main logic."""
+        pass
 
-        Must be implemented by subclasses to define specific behavior.
-        """
+    async def _execute_tool(self, tool_name: str, arguments: Dict[str, Any]) -> ToolResult:
+        """Execute a tool by name with the given arguments."""
+        try:
+            # Find the tool
+            tool = next((t for t in self.available_tools if t.name == tool_name), None)
+            if not tool:
+                return ToolResult(success=False, error=f"Tool {tool_name} not found")
+
+            # Create tool call
+            tool_call = ToolCall(name=tool_name, arguments=arguments)
+
+            # Execute the tool
+            logger.info(f"Executing tool: {tool_name}")
+            result = await self._execute_tool_call(tool_call)
+            
+            if result.success:
+                logger.info(f"Tool {tool_name} executed successfully")
+            else:
+                logger.error(f"Tool {tool_name} failed: {result.error}")
+            
+            return result
+
+        except Exception as e:
+            logger.error(f"Error executing tool {tool_name}: {str(e)}")
+            return ToolResult(success=False, error=str(e))
+
+    async def _execute_tool_call(self, tool_call: ToolCall) -> ToolResult:
+        """Execute a tool call."""
+        try:
+            # Find the tool
+            tool = next((t for t in self.available_tools if t.name == tool_call.name), None)
+            if not tool:
+                return ToolResult(success=False, error=f"Tool {tool_call.name} not found")
+
+            # Execute the tool
+            return await tool._call(tool_call)
+
+        except Exception as e:
+            logger.error(f"Error executing tool call: {str(e)}")
+            return ToolResult(success=False, error=str(e))
 
     def handle_stuck_state(self):
         """Handle stuck state by adding a prompt to change strategy"""
@@ -191,3 +199,7 @@ class BaseAgent(BaseModel, ABC):
     def messages(self, value: List[Message]):
         """Set the list of messages in the agent's memory."""
         self.memory.messages = value
+
+    async def __call__(self, tool_call: ToolCall) -> ToolResult:
+        """Execute the tool."""
+        return await self._call(tool_call)

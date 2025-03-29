@@ -1,50 +1,21 @@
-import asyncio
-import time
+from typing import Dict, Any
+from loguru import logger
 
-from app.agent.manus import Manus
-from app.flow.base import FlowType
-from app.flow.flow_factory import FlowFactory
-from app.logger import logger
+from app.agent.datapip import Datapip
 
-
-async def run_flow():
-    agents = {
-        "manus": Manus(),
-    }
-
+async def run_workflow(arguments: Dict[str, Any]) -> Dict[str, Any]:
+    """Run the data preprocessing workflow."""
     try:
-        prompt = input("Enter your prompt: ")
-
-        if prompt.strip().isspace() or not prompt:
-            logger.warning("Empty prompt provided.")
-            return
-
-        flow = FlowFactory.create_flow(
-            flow_type=FlowType.PLANNING,
-            agents=agents,
-        )
-        logger.warning("Processing your request...")
-
-        try:
-            start_time = time.time()
-            result = await asyncio.wait_for(
-                flow.execute(prompt),
-                timeout=3600,  # 60 minute timeout for the entire execution
-            )
-            elapsed_time = time.time() - start_time
-            logger.info(f"Request processed in {elapsed_time:.2f} seconds")
-            logger.info(result)
-        except asyncio.TimeoutError:
-            logger.error("Request processing timed out after 1 hour")
-            logger.info(
-                "Operation terminated due to timeout. Please try a simpler request."
-            )
-
-    except KeyboardInterrupt:
-        logger.info("Operation cancelled by user.")
+        agent = Datapip()
+        result = await agent.run(arguments)
+        
+        if result.success:
+            logger.info("Workflow completed successfully")
+            return result.data
+        else:
+            logger.error(f"Workflow failed: {result.error}")
+            return {"error": result.error}
+            
     except Exception as e:
-        logger.error(f"Error: {str(e)}")
-
-
-if __name__ == "__main__":
-    asyncio.run(run_flow())
+        logger.error(f"Error in workflow: {str(e)}")
+        return {"error": str(e)}

@@ -1,98 +1,83 @@
-# 👋 DataPip: Smart Data Workflows
+# DataPip
 
-Welcome to **DataPip**! This project leverages the powerful **Manus** AI assistant to create an intelligent data pipeline system that collects data, analyzes it, and generates visualizations—all orchestrated by AI. Built to be smart, flexible, and simple to use.
+A powerful data preprocessing and visualization tool that helps you analyze and understand your data through automated processing and visualization generation.
 
 ## Features
 
-- **AI-Driven Data Collection**: Automatically gather data from files, APIs, and databases
-- **Intelligent Analysis**: Leverage ML techniques for insights and pattern recognition
-- **Dynamic Visualization**: Create charts and graphs optimized for your data
-- **OpenManus Integration**: Uses Manus AI's planning capabilities to orchestrate complex workflows
+- CSV file processing and analysis
+- Automated data cleaning and preprocessing
+- Statistical analysis and insights generation
+- Multiple visualization types:
+  - Histograms
+  - Box plots
+  - Scatter plots
+  - Correlation heatmaps
+  - Bar charts
+  - Pie charts
+- Output saved in CSV format with analysis reports
 
 ## Installation
 
-### Setting Up DataPip
-
-Follow these steps to get DataPip up and running on your system:
-
-### Step 1: Clone the Project
-
-1. Open your terminal (Command Prompt on Windows, Terminal on macOS/Linux).
-2. Go to where you want the project:
-   ```bash
-   cd ~/projects  # Pick any folder you like
-   ```
-
-3. Clone the repository:
-   ```bash
-   git clone https://github.com/mannaandpoem/OpenManus.git
-   ```
-4. Enter the project folder:
-   ```bash
-   cd OpenManus
-   ```
-
-### Step 2: Set Up a Virtual Environment
-
-1. Create a virtual environment with Python 3.12:
-
-   ```bash
-   python3 -m venv .venv  # On macOS/Linux
-   # Or on Windows:
-   # python -m venv .venv
-   ```
-
-   - This makes a `.venv` folder in your project directory.
-
-2. Activate the virtual environment:
-   - On **macOS/Linux**:
-     ```bash
-     source .venv/bin/activate
-     ```
-   - On **Windows**:
-     ```bash
-     .venv\Scripts\activate
-     ```
-   - You’ll see `(.venv)` in your terminal prompt, showing it’s active.
-
-### Step 3: Install Dependencies
-
-1. Install the project’s requirements:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   - This grabs all the tools and libraries OpenManus needs.
-
-### Step 4: Configure the Project
-
-1. Copy the example config file:
-   ```bash
-   cp config/config.example.toml config/config.toml
-   ```
-2. Open `config/config.toml` in a text editor and add your API key:
-   ```toml
-   [llm]
-   model = "gpt-4o"
-   base_url = "https://api.openai.com/v1"
-   api_key = "sk-..."  # Replace with your API key
-   max_tokens = 4096
-   temperature = 0.0
-   ```
-3. Save the file.
-
-### Step 5: Run It!
-
-1. Start the project:
-   ```bash
-   python main.py
-   ```
-2. Type something like “collect data and make a chart” to test it.
-
-### Step 6: Exit When Done
-
-To leave the virtual environment:
-
+1. Clone the repository:
 ```bash
-deactivate
+git clone https://github.com/yourusername/datapip.git
+cd datapip
 ```
+
+2. Install the required packages:
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+1. Place your CSV files in the `data` directory.
+
+2. Run the program:
+```bash
+python main.py
+```
+
+3. Select a file to process or choose to process all files.
+
+4. The processed data and analysis reports will be saved in the `Output` directory.
+
+## Project Structure
+
+```
+datapip/
+├── app/
+│   ├── agent/
+│   │   ├── base.py
+│   │   └── datapip.py
+│   ├── tool/
+│   │   ├── base.py
+│   │   ├── data_collector.py
+│   │   ├── data_cleaner.py
+│   │   ├── data_analyzer.py
+│   │   ├── visualization_generator.py
+│   │   └── file_saver.py
+│   ├── schema.py
+│   └── llm.py
+├── data/
+├── Output/
+├── logs/
+├── main.py
+├── requirements.txt
+└── setup.py
+```
+
+## Dependencies
+
+- pandas >= 2.0.0
+- numpy >= 1.24.0
+- matplotlib >= 3.7.0
+- seaborn >= 0.12.0
+- scikit-learn >= 1.3.0
+- pydantic >= 2.0.0
+- loguru >= 0.7.0
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 

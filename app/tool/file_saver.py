@@ -1,73 +1,57 @@
-import os
+from pathlib import Path
+from loguru import logger
 
-import aiofiles
-
+from app.schema import Tool, ToolCall, ToolResult
 from app.tool.base import BaseTool
 
 
 class FileSaver(BaseTool):
-    name: str = "file_saver"
-    description: str = """Save content to a file that I will provide to you under folder called output.
-Use this tool when you need to save text, code, or generated content to a the path I give it to you.
-The tool accepts content and a file path, and saves the content to that location.
-"""
-    parameters: dict = {
-        "type": "object",
-        "properties": {
-            "content": {
-                "type": "string",
-                "description": "(required) The content to save to the file.",
-            },
-            "file_path": {
-                "type": "string",
-                "description": "(required) The path where the file should be saved, including filename and extension.",
-            },
-            "mode": {
-                "type": "string",
-                "description": "(optional) The file opening mode. Default is 'w' for write. Use 'a' for append.",
-                "enum": ["w", "a"],
-                "default": "w",
-            },
-        },
-        "required": ["content", "file_path"],
-    }
+    """Tool for saving data to files."""
 
-    async def execute(self, content: str, file_path: str, mode: str = "w") -> str:
-        """
-        Save content to a file at the specified path.
+    def __init__(self):
+        super().__init__(
+            name="FileSaver",
+            description="Saves data to files",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "description": "The DataFrame to save",
+                    },
+                    "file_path": {
+                        "type": "string",
+                        "description": "Path where to save the file",
+                    },
+                    "index": {
+                        "type": "boolean",
+                        "description": "Whether to save the index",
+                        "default": False,
+                    },
+                },
+                "required": ["data", "file_path"],
+            },
+        )
 
-        Args:
-            content (str): The content to save to the file.
-            file_path (str): The path where the file should be saved.
-            mode (str, optional): The file opening mode. Default is 'w' for write. Use 'a' for append.
-
-        Returns:
-            str: A message indicating the result of the operation.
-        """
+    async def _call(self, tool_call: ToolCall) -> ToolResult:
+        """Save data to a file."""
         try:
-            # Define project root directory
-            project_dir = r"C:\IT\personalProjects\DataPip\Output"
+            data = tool_call.arguments["data"]
+            file_path = tool_call.arguments["file_path"]
+            index = tool_call.arguments.get("index", False)
             
-            # If file_path is absolute, check if it's within project directory
-            if os.path.isabs(file_path):
-                if not file_path.startswith(project_dir):
-                    # Force the path to be within project directory
-                    file_path = os.path.join(project_dir, os.path.basename(file_path))
-            else:
-                # If relative path, make it relative to project directory
-                file_path = os.path.join(project_dir, file_path)
+            # Create directory if it doesn't exist
+            Path(file_path).parent.mkdir(parents=True, exist_ok=True)
             
-            path = os.path.abspath(file_path)
+            # Save the data
+            data.to_csv(file_path, index=index)
+            logger.info(f"Successfully saved data to {file_path}")
             
-            # Ensure the directory exists
-            directory = os.path.dirname(path)
-            if directory and not os.path.exists(directory):
-                os.makedirs(directory)
+            return ToolResult(
+                success=True,
+                data={"file_path": file_path},
+            )
 
-            # Write directly to the file
-            async with aiofiles.open(path, mode, encoding="utf-8") as file:
-                await file.write(content)
-
-            return f"Content successfully saved to {path}"
         except Exception as e:
-            return f"Error saving file: {str(e)}"
+            logger.error(f"Error saving data: {str(e)}")
+            return ToolResult(success=False, error=str(e))

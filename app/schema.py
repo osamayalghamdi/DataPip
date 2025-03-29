@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -43,12 +43,66 @@ class Function(BaseModel):
     arguments: str
 
 
-class ToolCall(BaseModel):
-    """Represents a tool/function call in a message"""
+class Tool(BaseModel):
+    """Base class for all tools."""
+    name: str
+    description: str
+    parameters: Dict[str, Any]
 
-    id: str
-    type: str = "function"
-    function: Function
+
+class ToolCall(BaseModel):
+    """Represents a call to a tool."""
+    name: str
+    arguments: Dict[str, Any]
+
+
+class ToolResult(BaseModel):
+    """Represents the result of a tool call."""
+    success: bool
+    data: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+
+
+class Agent(BaseModel):
+    """Base class for all agents."""
+    name: str
+    description: str
+    max_steps: int
+    available_tools: List[Tool]
+
+
+class AgentCall(BaseModel):
+    """Represents a call to an agent."""
+    arguments: Dict[str, Any]
+
+
+class AgentResult(BaseModel):
+    """Represents the result of an agent call."""
+    success: bool
+    data: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+
+
+class DataAnalysisResult(BaseModel):
+    """Represents the result of data analysis."""
+    basic_stats: Dict[str, Dict[str, Any]]
+    correlations: Dict[str, Any]
+    distributions: Dict[str, Dict[str, Any]]
+    insights: List[str]
+
+
+class VisualizationResult(BaseModel):
+    """Represents a generated visualization."""
+    image: str  # Base64 encoded image
+    plot_type: str
+    title: str
+
+
+class AnalysisReport(BaseModel):
+    """Represents a complete analysis report."""
+    cleaned_data: Dict[str, Any]  # DataFrame as dict
+    analysis: DataAnalysisResult
+    visualizations: List[VisualizationResult]
 
 
 class Message(BaseModel):
