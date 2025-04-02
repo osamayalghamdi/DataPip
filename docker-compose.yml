@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  datapip:
+    build: .
+    volumes:
+      - .:/app
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    ports:
+      - "8888:8888"  # For Jupyter notebook if needed

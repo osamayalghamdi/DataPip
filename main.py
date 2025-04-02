@@ -1,57 +1,45 @@
 import os
-import asyncio
-from loguru import logger
+import autogen
+from app.agents.user_proxy import create_user_proxy
+from app.agents.assistant import create_assistant
+from app.agents.collector import create_collector
+from app.agents.analyst import create_analyst
+from app.agents.visualizer import create_visualizer
+from dotenv import load_dotenv
 
-from app.agent.datapip import Datapip
+# Load environment variables
+load_dotenv()
 
-async def process_csv_file(file_path: str):
-    """Process a single CSV file."""
-    try:
-        agent = Datapip()
-        result = await agent.run({"file_path": file_path})
-        
-        if result.success:
-            logger.info(f"Successfully processed {file_path}")
-            logger.info(f"Output saved to Output/processed_{os.path.basename(file_path)}")
-            logger.info(f"Analysis report saved to Output/analysis_{os.path.basename(file_path).replace('.csv', '.txt')}")
-        else:
-            logger.error(f"Failed to process {file_path}: {result.error}")
-            
-    except Exception as e:
-        logger.error(f"Error processing {file_path}: {str(e)}")
-
-async def main():
-    """Main entry point."""
-    print("\nDataPip - Data Analysis and Visualization System")
-    print("===============================================\n")
+def main():
+    # Create the agent group
+    config_list = [
+        {
+            "model": "gpt-4o",
+            "api_key": os.environ.get("OPENAI_API_KEY")
+        }
+    ]
     
-    # Get list of CSV files in data directory
-    data_dir = "data"
-    csv_files = [f for f in os.listdir(data_dir) if f.endswith('.csv')]
+    # Create the agents
+    user_proxy = create_user_proxy()
+    assistant = create_assistant(config_list)
+    collector = create_collector(config_list)
+    analyst = create_analyst(config_list)
+    visualizer = create_visualizer(config_list)
     
-    if not csv_files:
-        print("No CSV files found in the data directory.")
-        return
+    # Connect agents in a group chat
+    groupchat = autogen.GroupChat(
+        agents=[user_proxy, assistant, collector, analyst, visualizer],
+        messages=[],
+        max_round=50
+    )
+    manager = autogen.GroupChatManager(groupchat=groupchat)
     
-    print("Available CSV files:")
-    for i, file in enumerate(csv_files, 1):
-        print(f"{i}. {file}")
-    
-    choice = input("\nEnter a number to process a specific file or 'a' to process all files: ")
-    
-    if choice.lower() == 'a':
-        logger.info("Processing all CSV files...")
-        for file in csv_files:
-            await process_csv_file(os.path.join(data_dir, file))
-    else:
-        try:
-            index = int(choice) - 1
-            if 0 <= index < len(csv_files):
-                await process_csv_file(os.path.join(data_dir, csv_files[index]))
-            else:
-                print("Invalid choice. Exiting.")
-        except ValueError:
-            print("Invalid input. Please enter a number or 'a'. Exiting.")
+    # Start the conversation
+    user_proxy.initiate_chat(
+        manager,
+        message="I have a CSV file in the data directory called sample_employees.csv. "
+                "Can you analyze it and create some visualizations to understand the data better?"
+    )
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
